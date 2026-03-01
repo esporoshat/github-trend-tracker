@@ -113,28 +113,3 @@ load_job = client.load_table_from_dataframe(df, staging_table_id, job_config=job
 load_job.result()
 print(f"Data loaded to staging table {staging_table_id} with WRITE_TRUNCATE")
 
-#-----------------------------
-# 7️ Move from staging to final with MERGE to handle updates and inserts
-#-----------------------------
-production_table_id = f"{project_id}.{dataset_id}.{table_id}"
-
-merge_query = f"""
-MERGE `{production_table_id}` TARGET
-USING `{staging_table_id}` SOURCE
-ON TARGET.repo_name = SOURCE.repo_name
-AND TARGET.snapshot_date = SOURCE.snapshot_date
-WHEN MATCHED THEN
-  UPDATE SET
-  stars = SOURCE.stars,
-  forks = SOURCE.forks,
-  language = SOURCE.language,
-  description = SOURCE.description,
-  last_updated = CAST(SOURCE.last_updated AS TIMESTAMP)
-WHEN NOT MATCHED THEN
-    INSERT (repo_name, stars, forks, language, description, html_url, last_updated, snapshot_date)
-    VALUES (SOURCE.repo_name, SOURCE.stars, SOURCE.forks, SOURCE.language, SOURCE.description, SOURCE.html_url, CAST(SOURCE.last_updated AS TIMESTAMP), SOURCE.snapshot_date)
-"""
-
-merge_job = client.query(merge_query)
-merge_job.result()
-print(f"Data merged from staging to production table {production_table_id}.")
