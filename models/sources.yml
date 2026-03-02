@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: raw_github_data 
+    database: github-trend-tracker-488210
+    schema: github_trends
+    tables:
+      - name: top_repos_staging # This matches the staging_table_id in your script
