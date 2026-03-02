@@ -52,4 +52,4 @@ dbt run --select fct_github_trends
 
 ---
 
-Part of an ongoing project to track GitHub trending repositories over time.
+Part of an ongoing project to track GitHub trending AI repositories over time.
