@@ -59,24 +59,13 @@ client.create_dataset(dataset, exists_ok=True)
 print(f"Dataset '{dataset_id}' created or already exists in Frankfurt.")
 
 # -----------------------------
-# 4️ Create table if missing
+# 4️ Dynamic table handling
 # -----------------------------
 table_ref = f"{dataset_ref}.{table_id}"
 
-schema = [
-    bigquery.SchemaField("repo_name", "STRING"),
-    bigquery.SchemaField("stars", "INTEGER"),
-    bigquery.SchemaField("forks", "INTEGER"),
-    bigquery.SchemaField("language", "STRING"), # Optional field for programming language,
-    bigquery.SchemaField("description", "STRING"), # Optional field for repository description  
-    bigquery.SchemaField("html_url", "STRING"), # Optional field for repository URL 
-    bigquery.SchemaField("last_updated", "TIMESTAMP"), # Optional field for last update time
-    bigquery.SchemaField("snapshot_date", "DATE"),
-]
-
-table = bigquery.Table(table_ref, schema=schema)
-client.create_table(table, exists_ok=True)
-print(f"Table '{table_id}' created or already exists.")
+# We no longer need to define 'schema = [...]' manually here.
+# If the table doesn't exist, BigQuery will create it based on the first DataFrame upload.
+# If it does exist, we'll let it evolve.
 
 # -----------------------------
 # 5️ Prepare rows and load in batch
@@ -105,7 +94,8 @@ df = pd.DataFrame(rows_to_insert)
 staging_table_id = f"{project_id}.{dataset_id}.top_repos_staging"
 
 job_config = bigquery.LoadJobConfig(
-    write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE
+    autodetect=True,  # Let BigQuery infer the schema from the DataFrame
+    write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
 )
 
 load_job = client.load_table_from_dataframe(df, staging_table_id, job_config=job_config)
