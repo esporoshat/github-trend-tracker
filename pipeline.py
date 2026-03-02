@@ -93,13 +93,15 @@ else:
             "repo_name": repo.get("name"),
             "stars": repo.get("stargazers_count"),
             "forks": repo.get("forks_count"),
+            "open_issues": repo.get("open_issues_count"),
             "language": repo.get("language"),
             "description": repo.get("description"),
-            "html_url": repo.get("html_url"),  # Browser-friendly link
+            "pushed_at": repo.get("pushed_at"),
             "last_updated": repo.get("updated_at"), 
+            "topics": repo.get("topics", []),  ## captures all topics as an array,
+            "repo_url": repo.get("html_url"),  # Browser-friendly link
             "snapshot_date": today,
             # To add a new column in the future, just add one line here:
-            # "watchers": repo.get("watchers_count")
         })
 
 # Convert to DataFrame
