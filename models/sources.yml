@@ -5,4 +5,4 @@ sources:
     database: github-trend-tracker-488210
     schema: github_trends
     tables:
-      - name: top_repos_staging # This matches the staging_table_id in your script
+      - name: top_repos_staging 
