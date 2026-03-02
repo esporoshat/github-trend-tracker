@@ -1,4 +1,5 @@
 import requests
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from google.cloud import bigquery
 from datetime import date 
 import pandas as pd
@@ -25,19 +26,29 @@ params = {
 }
 
 
-response = requests.get(url, headers=headers, params=params)
+# If this function fails, try again!
+@retry(
+    stop=stop_after_attempt(3), # Stop after 3 tries
+    wait=wait_exponential(multiplier=1, min=4, max=10), # Wait 4s, then 8s, then 10s
+    retry=retry_if_exception_type(requests.exceptions.RequestException)
+)
 
-# Check for errors
-if response.status_code != 200:
-    print("Error:", response.status_code, response.text)
-    exit()
+def fetch_github_data(url, headers, params):
+    response = requests.get(url, headers=headers, params=params)
+    
+    # Raise an error if the status is 4xx or 5xx so tenacity knows to retry
+    response.raise_for_status() 
+    
+    return response.json()
 
-data = response.json()
 
-# Print results
-for repo in data['items']:
-    print(f"Name: {repo['name']}, Stars: {repo['stargazers_count']}, Forks: {repo['forks_count']}")
-
+try:
+    data = fetch_github_data(url, headers, params)
+    print("Successfully fetched data!")
+except Exception as e:
+    print(f"Permanent Failure after 3 attempts: {e}")
+    exit(1)
+    
 # -----------------------------
 # 2️ BigQuery client setup
 # -----------------------------
@@ -73,17 +84,23 @@ table_ref = f"{dataset_ref}.{table_id}"
 rows_to_insert = []
 today = date.today()
 
-for repo in data['items']:
-    rows_to_insert.append({
-        "repo_name": repo["name"],
-        "stars": repo["stargazers_count"],
-        "forks": repo["forks_count"],
-        "language": repo["language"],
-        "description": repo["description"],
-        "html_url": repo["url"],
-        "last_updated": repo["updated_at"], 
-        "snapshot_date": today
-    })
+# Check if items actually exist before looping
+if not data.get('items'):
+    print("No repositories found for this query.")
+else:
+    for repo in data['items']:
+        rows_to_insert.append({
+            "repo_name": repo.get("name"),
+            "stars": repo.get("stargazers_count"),
+            "forks": repo.get("forks_count"),
+            "language": repo.get("language"),
+            "description": repo.get("description"),
+            "html_url": repo.get("html_url"),  # Browser-friendly link
+            "last_updated": repo.get("updated_at"), 
+            "snapshot_date": today,
+            # To add a new column in the future, just add one line here:
+            # "watchers": repo.get("watchers_count")
+        })
 
 # Convert to DataFrame
 df = pd.DataFrame(rows_to_insert)
