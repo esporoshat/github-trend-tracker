@@ -1,11 +1,16 @@
 {{
   config(
     materialized='incremental',
+    unique_key='repo_snapshot_id',
     on_schema_change='append_new_columns'
   )
 }}
 
 select
+    -- 1. We define the new unique ID here
+    concat(repo_name, '-', cast(snapshot_date as string)) as repo_snapshot_id,
+    
+    -- 2. Then we list the rest of the original columns
     repo_name,
     stars,
     forks,
