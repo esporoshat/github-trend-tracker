@@ -41,9 +41,7 @@ for repo in data['items']:
 # -----------------------------
 # 2️ BigQuery client setup
 # -----------------------------
-client = bigquery.Client.from_service_account_json(
-    "/Users/poroshat/Desktop/github-trend-tracker/github-trend-tracker-488210-89ebbc40a855.json"
-)
+client = bigquery.Client() # This will use the GOOGLE_APPLICATION_CREDENTIALS env variable for auth
 
 project_id = "github-trend-tracker-488210"
 dataset_id = "github_trends"
