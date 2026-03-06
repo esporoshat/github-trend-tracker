@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: fct_github_trends
-    description: "Daily snapshot of top AI repositories from GitHub."
+    description: "Daily snapshot of top AI repositories from GitHub in 2026"
     columns:
       - name: repo_snapshot_id
         description: "A unique identifier mixed of both rrepo name and snapshot date."
