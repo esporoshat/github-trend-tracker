@@ -12,6 +12,7 @@ select
     
     -- 2. Then we list the rest of the original columns
     repo_name,
+    topics,
     stars,
     forks,
     open_issues,
@@ -19,6 +20,7 @@ select
     description,
     pushed_at,
     last_updated,
+    repo_url,
     snapshot_date
 from {{ source('raw_github_data', 'top_repos_staging') }}
 
