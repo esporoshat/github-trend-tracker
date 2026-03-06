@@ -25,6 +25,7 @@ select
     case 
         when prev_stars is null or prev_stars = 0 then null 
         else ((stars - prev_stars) / prev_stars) * 100 
-    end as growth_velocity_pct
+    end as growth_velocity_pct,
 
+    current_timestamp() as mart_updated_at
 from daily_lag
