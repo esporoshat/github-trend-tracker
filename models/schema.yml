@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: fct_github_trends
+    description: "Daily snapshot of top AI repositories from GitHub in 2026"
+    columns:
+      - name: repo_snapshot_id
+        description: "A unique identifier mixed of both rrepo name and snapshot date."
+        tests:
+          - not_null
+          - unique
+  
+
+
+  - name: mart_github_ai_rankings
+    description: "Daily ranking of AI repos based on star counts."
+    columns:
+      - name: repo_name
+        description: "The name of the repository."
+        tests:
+          - not_null
+      - name: daily_rank
+        description: "The rank of the repo for that specific day."
+        tests:
+          - not_null
+      - name: rank_status
+        description: "Categorization of the rank change (rising, falling, stable, new_entry)."
+        tests:
+          - accepted_values:
+              values: ['rising', 'falling', 'stable', 'new_entry']
+
+
+
+  - name: mart_github_daily_metrics
+    description: "Calculates daily star growth and velocity for each repository."
+    columns:
+      - name: repo_name
+        description: "The name of the repository."
+        tests:
+          - not_null
+      - name: snapshot_date
+        description: "The date of the snapshot."
+        tests:
+          - not_null
+      
+
+
+  - name: mart_github_momentum
+    description: "Identifies trending repos using momentum scores."
+
+    
+    
