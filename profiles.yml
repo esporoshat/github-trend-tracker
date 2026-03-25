@@ -1,0 +1,13 @@
+github_pipeline_transformation:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      # This pulls from the env variable we added to the YAML file
+      project: "{{ env_var('GCP_PROJECT_ID') }}"
+      dataset: github_trends
+      threads: 1
+      # This is the path where GitHub Actions creates the file
+      keyfile: /home/runner/work/github-trend-tracker/github-trend-tracker/creds.json
+      location: europe-west3

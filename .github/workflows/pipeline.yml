@@ -31,6 +31,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           # Telling Google Cloud where to find the credentials file we are about to create
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/creds.json
+          GCP_PROJECT_ID: "github-trend-tracker-488210"
         run: |
           # 1. Create the JSON file from the secret
           echo '${{ secrets.GCP_SA_KEY }}' > creds.json
