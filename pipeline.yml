@@ -27,7 +27,7 @@ jobs:
 
       - name: Execute Pipeline
         env:
-          # Mapping the GitHub Secret to the variable your code uses
+          # Mapping the GitHub Secret to the variable the code uses
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           # Telling Google Cloud where to find the credentials file we are about to create
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/creds.json
