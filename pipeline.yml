@@ -1,0 +1,42 @@
+name: GitHub Trend Tracker Pipeline
+
+on:
+  schedule:
+    # This triggers the "alarm" at 9:00 AM UTC every day
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    # This adds the manual "Run workflow" button in GitHub Actions
+
+jobs:
+  run-data-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install dbt-bigquery
+
+      - name: Execute Pipeline
+        env:
+          # Mapping the GitHub Secret to the variable your code uses
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          # Telling Google Cloud where to find the credentials file we are about to create
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/creds.json
+        run: |
+          # 1. Create the JSON file from the secret
+          echo '${{ secrets.GCP_SA_KEY }}' > creds.json
+          
+          # 2. Run the extraction script
+          python pipeline.py
+          
+          # 3. Run the dbt transformation
+          dbt run
