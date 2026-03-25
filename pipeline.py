@@ -55,7 +55,8 @@ except Exception as e:
 client = bigquery.Client()  # This will use the GOOGLE_APPLICATION_CREDENTIALS env variable for auth
 
 project_id = "github-trend-tracker-488210"
-dataset_id = "github_trends"
+# This looks for 'DBT_DATASET'. If not found, it defaults to 'github_trends'
+dataset_id = os.getenv("DBT_DATASET", "github_trends")
 table_id = "top_repos"
 
 # -----------------------------
